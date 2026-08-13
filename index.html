@@ -41,44 +41,7 @@ body[data-theme=grayscale] .brand h1{background:linear-gradient(145deg,#c0c0c0,#
 <body data-theme="default">
 <canvas id="bg-canvas"></canvas>
 
-<div id="loading-overlay">
-<div class="boot-container">
-<div class="boot-header"><span class="brand-boot">LOGICNEST</span><span>BIOS v2.0 · <span id="bootTime">--:--:--</span></span></div>
-<div class="boot-logs" id="bootLogs"></div>
-<div class="boot-progress"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div><span class="progress-label" id="progressLabel">0%</span></div>
-<div class="boot-footer"><span id="bootStatus">initializing system <span class="blink">_</span></span><button class="skip-btn" id="skipBootBtn">Skip Boot</button></div>
 </div>
-</div>
-
-<div class="container">
-<div class="top-bar">
-<div class="brand"><h1>LogicNest</h1><span class="badge">'26 · roblox creator</span></div>
-<div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
-<div class="status-chip"><span><i class="fas fa-circle" style="font-size:.4rem"></i> online</span><span><i class="fas fa-code"></i> v2.0</span><span><i class="far fa-clock"></i> <span id="clockDisplay">--:--:--</span></span></div>
-<div class="theme-selector"><span><i class="fas fa-palette"></i></span><button class="theme-btn active" data-theme="default">def</button><button class="theme-btn" data-theme="grayscale">gray</button><button class="theme-btn" data-theme="night">night</button><button class="theme-btn" data-theme="muted">mute</button><button class="theme-btn" data-theme="sunset">sun</button><button class="theme-btn" data-theme="forest">forest</button><button class="theme-btn" data-theme="ocean">ocean</button><button class="theme-btn" data-theme="lavender">laven</button></div>
-</div>
-</div>
-
-<div class="mode-switch"><button class="mode-btn active" data-mode="console">Console</button><button class="mode-btn" data-mode="normal">Normal</button></div>
-
-<div class="view active" id="consoleView">
-<div class="terminal-main">
-<div class="terminal-header"><span class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></span><span class="title"><i class="fas fa-terminal"></i> logicnest@console:~</span><span style="margin-left:auto;font-size:.6rem;color:#4a4a4a">enhanced</span></div>
-<div class="terminal-body" id="terminalBody">
-<div class="terminal-output"><span class="highlight">╔══════════════════════════════════════════════════════════════════╗</span><br><span class="highlight">║ LogicNest Console v2.0 — Roblox Creator ║</span><br><span class="highlight">╚══════════════════════════════════════════════════════════════════╝</span><br><span class="dim">Type <span class="highlight">/help</span> to see all commands.</span><br><span class="dim">Building · Scripting · Clothing · Roblox Tools</span></div>
-<div class="terminal-input-line"><span class="terminal-prompt">➜</span><input type="text" class="terminal-input" id="terminalInput" placeholder="enter command..." autocomplete="off"></div>
-</div>
-</div>
-</div>
-
-<div class="view" id="normalView">
-<div class="normal-grid">
-<div class="tool-card"><h3>Roblox User Lookup</h3><p>Search a Roblox username and view public profile information.</p><div class="tool-row"><input id="userInput" placeholder="username"><button id="userSearch">Search</button></div><div class="result" id="userResult">Enter a username to begin.</div></div>
-<div class="tool-card"><h3>Roblox Group Lookup</h3><p>Find groups by name and inspect public group details.</p><div class="tool-row"><input id="groupInput" placeholder="group name"><button id="groupSearch">Search</button></div><div class="result" id="groupResult">Enter a group name to begin.</div></div>
-<div class="tool-card"><h3>Roblox Game Lookup</h3><p>Search public Roblox experiences by name.</p><div class="tool-row"><input id="gameInput" placeholder="game name"><button id="gameSearch">Search</button></div><div class="result" id="gameResult">Enter a game name to begin.</div></div>
-<div class="tool-card"><h3>Catalog Item Lookup</h3><p>Look up an asset ID and retrieve its public details.</p><div class="tool-row"><input id="assetInput" placeholder="asset id"><button id="assetSearch">Search</button></div><div class="result" id="assetResult">Enter an asset ID to begin.</div></div>
-<div class="tool-card"><h3>Developer Utilities</h3><p>Quick tools for common creator tasks.</p><div class="tool-row"><select id="utilitySelect"><option value="json">JSON formatter</option><option value="base64">Base64 encode</option><option value="decode64">Base64 decode</option><option value="timestamp">Unix timestamp</option><option value="color">Hex color</option></select></div><textarea id="utilityInput" style="width:100%;margin-top:.6rem;min-height:80px;background:#141414;border:1px solid #303030;color:#ddd;border-radius:10px;padding:.65rem;outline:none"></textarea><div class="tool-row" style="margin-top:.6rem"><button id="utilityRun">Run</button></div><div class="result" id="utilityResult">Ready.</div></div>
-<div class="tool-card"><h3>Projects</h3><p>Open the LogicNest creator projects.</p><div class="card-list" id="projectList"></div></div>
 </div>
 </div>
 
