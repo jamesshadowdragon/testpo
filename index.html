@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LogicNest · Roblox Creator</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#0b0b0b;color:#e4e4e4;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:1rem;transition:.5s;position:relative;overflow-x:hidden}
+#bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#loading-overlay{position:fixed;inset:0;background:#0a0a0a;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:.8s;font-family:"Courier New",monospace;padding:2rem}
+#loading-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.boot-container{max-width:700px;width:100%;background:rgba(8,8,8,.9);border:1px solid rgba(40,40,40,.5);border-radius:12px;padding:2rem;box-shadow:0 0 60px rgba(0,20,10,.2)}
+.boot-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem;padding-bottom:.6rem;border-bottom:1px solid rgba(40,40,40,.3);color:#5a5a5a;font-size:.7rem;letter-spacing:2px;text-transform:uppercase}
+.brand-boot{color:#5fbfa8;font-weight:600;font-size:.85rem}
+.boot-logs{font-size:.8rem;line-height:1.8;color:#7a8a8a;min-height:200px;max-height:320px;overflow-y:auto}
+.log-line{opacity:0;animation:fadeInLog .3s forwards}
+.timestamp{color:#3a5a4a;margin-right:12px}.ok{color:#4a9a6a}.warn{color:#c4a040}.info{color:#5a9ac4}.highlight{color:#5fbfa8;font-weight:600}.dim{color:#6a6a6a}.error{color:#c05050}.gpu{color:#b07ad4}.success{color:#6fbf8f}
+@keyframes fadeInLog{to{opacity:1}}
+.boot-progress{margin-top:1.2rem;display:flex;align-items:center;gap:1rem}.progress-bar{flex:1;height:4px;background:rgba(40,40,40,.5);border-radius:4px;overflow:hidden}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#2a5a4a,#5fbfa8);transition:.15s}.progress-label{font-size:.7rem;color:#5a7a6a;min-width:50px;text-align:right}
+.boot-footer{margin-top:1rem;text-align:center;color:#3a4a4a;font-size:.65rem;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}.blink{animation:blink 1s step-end infinite}@keyframes blink{50%{opacity:0}}
+.skip-btn,.action-btn,.mode-btn,.theme-btn,.nav-btn{background:transparent;border:1px solid rgba(60,60,60,.5);color:#aaa;border-radius:30px;cursor:pointer;transition:.2s;font-family:"Courier New",monospace}
+.skip-btn{padding:.3rem 1rem;font-size:.65rem}.skip-btn:hover,.action-btn:hover,.mode-btn:hover,.nav-btn:hover{border-color:#5fbfa8;color:#eee;background:rgba(95,191,168,.08)}
+.container{position:relative;z-index:1;max-width:1100px;width:100%;background:rgba(10,10,10,.88);backdrop-filter:blur(10px);border:1px solid rgba(34,34,34,.8);border-radius:28px;padding:1.8rem 1.8rem 1.2rem;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+.top-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;margin-bottom:1.2rem;border-bottom:1px solid rgba(28,28,28,.6);padding-bottom:.8rem}
+.brand{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap}.brand h1{font-size:1.8rem;font-weight:700;letter-spacing:-.5px;background:linear-gradient(145deg,#a8f0e0,#6dd5c6);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.badge{font-size:.65rem;background:rgba(26,26,26,.8);padding:.2rem .8rem;border-radius:40px;letter-spacing:1.5px;color:#7a7a7a;border:1px solid rgba(42,42,42,.8);text-transform:uppercase}
+.status-chip{display:flex;gap:1rem;flex-wrap:wrap;font-size:.7rem;color:#7e7e7e;background:rgba(19,19,19,.7);padding:.3rem 1rem;border-radius:40px;border:1px solid rgba(33,33,33,.7)}.status-chip i{color:#5fbfa8}.status-chip span{color:#b0b0b0}
+.theme-selector{display:flex;gap:.3rem;align-items:center;background:rgba(21,21,21,.7);padding:.15rem .5rem;border-radius:40px;border:1px solid rgba(40,40,40,.7);flex-wrap:wrap}.theme-selector span{font-size:.6rem;color:#6a6a6a}.theme-btn{border:none;padding:.15rem .4rem;font-size:.55rem;text-transform:uppercase;letter-spacing:.5px}.theme-btn.active{color:#eee;background:rgba(42,42,42,.8);box-shadow:inset 0 0 0 1px rgba(58,58,58,.8)}
+.mode-switch{display:flex;gap:.4rem;margin-bottom:1rem;padding:.35rem;background:rgba(17,17,17,.8);border:1px solid rgba(40,40,40,.5);border-radius:14px}.mode-btn{flex:1;padding:.55rem;font-size:.72rem}.mode-btn.active{background:#5fbfa8;color:#0b0b0b;border-color:#5fbfa8}
+.view{display:none}.view.active{display:block}
+.terminal-main{border-radius:16px;overflow:hidden;border:1px solid rgba(40,40,40,.5);background:rgba(6,6,6,.9);margin-bottom:1.2rem}.terminal-header{display:flex;align-items:center;gap:.6rem;padding:.5rem 1.2rem;background:rgba(16,16,16,.7);border-bottom:1px solid rgba(40,40,40,.3);font-size:.7rem;color:#6a6a6a}.dots{display:flex;gap:5px}.dot{width:10px;height:10px;border-radius:50%}.red{background:#ff5f56}.yellow{background:#ffbd2e}.green{background:#27c93f}.title{margin-left:.4rem;font-family:"Courier New",monospace;color:#8a8a8a}.terminal-body{padding:1rem 1.2rem;max-height:460px;min-height:320px;overflow-y:auto;font-family:"Courier New",monospace;font-size:.85rem;line-height:1.6;color:#c8c8c8}.terminal-output{margin-bottom:.4rem;white-space:pre-wrap;word-break:break-word}.terminal-input-line{display:flex;align-items:center;gap:.5rem;margin-top:.4rem;padding-top:.3rem;border-top:1px solid rgba(40,40,40,.3)}.terminal-prompt{font-weight:600;color:#5fbfa8}.terminal-input{background:transparent;border:none;color:#e0e0e0;font-family:"Courier New",monospace;font-size:.85rem;outline:none;width:100%;padding:.3rem 0}.link{color:#6ab0d6;text-decoration:underline;cursor:pointer}.project-name{color:#7ac4b0;font-weight:600}.tag{color:#a0a0a0;font-size:.8em}
+.normal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.tool-card{background:rgba(14,14,14,.82);border:1px solid rgba(40,40,40,.6);border-radius:18px;padding:1.1rem}.tool-card h3{font-size:.95rem;font-weight:500;margin-bottom:.35rem}.tool-card p{font-size:.72rem;color:#777;line-height:1.5;margin-bottom:.8rem}.tool-row{display:flex;gap:.5rem;flex-wrap:wrap}.tool-card input,.tool-card select{flex:1;min-width:150px;background:#141414;border:1px solid #303030;color:#ddd;border-radius:10px;padding:.65rem .75rem;outline:none}.tool-card input:focus,.tool-card select:focus{border-color:#5fbfa8}.tool-card button{background:#5fbfa8;color:#0b0b0b;border:none;border-radius:10px;padding:.65rem .9rem;cursor:pointer;font-weight:600}.result{margin-top:.8rem;padding:.8rem;background:#0b0b0b;border:1px solid #252525;border-radius:12px;min-height:42px;font-size:.75rem;line-height:1.6;overflow:auto}.profile{display:flex;gap:.8rem;align-items:center}.profile img{width:64px;height:64px;border-radius:14px;object-fit:cover;border:1px solid #333}.card-list{display:grid;gap:.5rem}.mini-card{display:flex;align-items:center;gap:.7rem;padding:.65rem;background:#101010;border:1px solid #242424;border-radius:10px}.mini-card img{width:42px;height:42px;border-radius:8px;object-fit:cover}.mini-card strong{display:block;color:#ddd}.mini-card small{color:#777}
+.contact-mini{background:rgba(15,15,15,.5);border:1px solid rgba(31,31,31,.5);border-radius:16px;padding:1.2rem 1.5rem;margin-top:.6rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.8rem}.label{font-size:.75rem;color:#8a8a8a}.action-btn{padding:.3rem 1rem;font-size:.7rem}
+.footer{margin-top:1.2rem;text-align:center;color:#3d3d3d;font-size:.65rem;letter-spacing:2px;border-top:1px solid rgba(22,22,22,.5);padding-top:1rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);display:none;justify-content:center;align-items:center;z-index:10000;padding:1rem}.modal-overlay.active{display:flex}.modal-box{background:#121212;border:1px solid rgba(60,60,60,.4);border-radius:20px;padding:2rem;max-width:500px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.9)}.modal-box h2{color:#e0e0e0;font-weight:400;font-size:1.2rem;margin-bottom:1.2rem}.close-modal{float:right;background:transparent;border:none;color:#777;font-size:1.2rem;cursor:pointer}.modal-box input,.modal-box textarea{background:#141414;border:1px solid #282828;border-radius:12px;padding:.8rem 1rem;color:#e0e0e0;font-size:.9rem;outline:none;width:100%;margin-bottom:.8rem}.modal-box textarea{min-height:100px;resize:vertical}.submit-btn{background:#5fbfa8;border:none;color:#0b0b0b;padding:.8rem 1.8rem;font-weight:600;border-radius:40px;cursor:pointer;font-size:.85rem;width:100%}
+body[data-theme=grayscale] .brand h1{background:linear-gradient(145deg,#c0c0c0,#888);-webkit-background-clip:text;-webkit-text-fill-color:transparent}body[data-theme=night] .brand h1{background:linear-gradient(145deg,#7ab8e6,#3a7ca5);-webkit-background-clip:text;-webkit-text-fill-color:transparent}body[data-theme=muted] .brand h1{background:linear-gradient(145deg,#b8b0a8,#8a8078);-webkit-background-clip:text;-webkit-text-fill-color:transparent}body[data-theme=sunset] .brand h1{background:linear-gradient(145deg,#f5b8a0,#d4806a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}body[data-theme=forest] .brand h1{background:linear-gradient(145deg,#8ac0a0,#4a8a6a);-webkit-background-clip:text;-webkit-text-fill-color:transparent}body[data-theme=ocean] .brand h1{background:linear-gradient(145deg,#7ac8e6,#3a8aaa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}body[data-theme=lavender] .brand h1{background:linear-gradient(145deg,#c8a8e6,#9a6aba);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+@media(max-width:700px){body{padding:.5rem}.container{padding:1rem;border-radius:20px}.top-bar{flex-direction:column;align-items:stretch}.status-chip,.theme-selector{justify-content:center}.normal-grid{grid-template-columns:1fr}.terminal-body{min-height:240px;max-height:360px;font-size:.75rem}.boot-container{padding:1.2rem}.boot-footer{flex-direction:column;gap:.5rem}}
+</style>
+</head>
+<body data-theme="default">
+<canvas id="bg-canvas"></canvas>
+
+<div id="loading-overlay">
+<div class="boot-container">
+<div class="boot-header"><span class="brand-boot">LOGICNEST</span><span>BIOS v2.0 · <span id="bootTime">--:--:--</span></span></div>
+<div class="boot-logs" id="bootLogs"></div>
+<div class="boot-progress"><div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div><span class="progress-label" id="progressLabel">0%</span></div>
+<div class="boot-footer"><span id="bootStatus">initializing system <span class="blink">_</span></span><button class="skip-btn" id="skipBootBtn">Skip Boot</button></div>
+</div>
+</div>
+
+<div class="container">
+<div class="top-bar">
+<div class="brand"><h1>LogicNest</h1><span class="badge">'26 · roblox creator</span></div>
+<div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center">
+<div class="status-chip"><span><i class="fas fa-circle" style="font-size:.4rem"></i> online</span><span><i class="fas fa-code"></i> v2.0</span><span><i class="far fa-clock"></i> <span id="clockDisplay">--:--:--</span></span></div>
+<div class="theme-selector"><span><i class="fas fa-palette"></i></span><button class="theme-btn active" data-theme="default">def</button><button class="theme-btn" data-theme="grayscale">gray</button><button class="theme-btn" data-theme="night">night</button><button class="theme-btn" data-theme="muted">mute</button><button class="theme-btn" data-theme="sunset">sun</button><button class="theme-btn" data-theme="forest">forest</button><button class="theme-btn" data-theme="ocean">ocean</button><button class="theme-btn" data-theme="lavender">laven</button></div>
+</div>
+</div>
+
+<div class="mode-switch"><button class="mode-btn active" data-mode="console">Console</button><button class="mode-btn" data-mode="normal">Normal</button></div>
+
+<div class="view active" id="consoleView">
+<div class="terminal-main">
+<div class="terminal-header"><span class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></span><span class="title"><i class="fas fa-terminal"></i> logicnest@console:~</span><span style="margin-left:auto;font-size:.6rem;color:#4a4a4a">enhanced</span></div>
+<div class="terminal-body" id="terminalBody">
+<div class="terminal-output"><span class="highlight">╔══════════════════════════════════════════════════════════════════╗</span><br><span class="highlight">║ LogicNest Console v2.0 — Roblox Creator ║</span><br><span class="highlight">╚══════════════════════════════════════════════════════════════════╝</span><br><span class="dim">Type <span class="highlight">/help</span> to see all commands.</span><br><span class="dim">Building · Scripting · Clothing · Roblox Tools</span></div>
+<div class="terminal-input-line"><span class="terminal-prompt">➜</span><input type="text" class="terminal-input" id="terminalInput" placeholder="enter command..." autocomplete="off"></div>
+</div>
+</div>
+</div>
+
+<div class="view" id="normalView">
+<div class="normal-grid">
+<div class="tool-card"><h3>Roblox User Lookup</h3><p>Search a Roblox username and view public profile information.</p><div class="tool-row"><input id="userInput" placeholder="username"><button id="userSearch">Search</button></div><div class="result" id="userResult">Enter a username to begin.</div></div>
+<div class="tool-card"><h3>Roblox Group Lookup</h3><p>Find groups by name and inspect public group details.</p><div class="tool-row"><input id="groupInput" placeholder="group name"><button id="groupSearch">Search</button></div><div class="result" id="groupResult">Enter a group name to begin.</div></div>
+<div class="tool-card"><h3>Roblox Game Lookup</h3><p>Search public Roblox experiences by name.</p><div class="tool-row"><input id="gameInput" placeholder="game name"><button id="gameSearch">Search</button></div><div class="result" id="gameResult">Enter a game name to begin.</div></div>
+<div class="tool-card"><h3>Catalog Item Lookup</h3><p>Look up an asset ID and retrieve its public details.</p><div class="tool-row"><input id="assetInput" placeholder="asset id"><button id="assetSearch">Search</button></div><div class="result" id="assetResult">Enter an asset ID to begin.</div></div>
+<div class="tool-card"><h3>Developer Utilities</h3><p>Quick tools for common creator tasks.</p><div class="tool-row"><select id="utilitySelect"><option value="json">JSON formatter</option><option value="base64">Base64 encode</option><option value="decode64">Base64 decode</option><option value="timestamp">Unix timestamp</option><option value="color">Hex color</option></select></div><textarea id="utilityInput" style="width:100%;margin-top:.6rem;min-height:80px;background:#141414;border:1px solid #303030;color:#ddd;border-radius:10px;padding:.65rem;outline:none"></textarea><div class="tool-row" style="margin-top:.6rem"><button id="utilityRun">Run</button></div><div class="result" id="utilityResult">Ready.</div></div>
+<div class="tool-card"><h3>Projects</h3><p>Open the LogicNest creator projects.</p><div class="card-list" id="projectList"></div></div>
+</div>
+</div>
+
+<div class="contact-mini"><span class="label"><i class="fas fa-envelope"></i> contact / suggest</span><div style="display:flex;gap:.6rem;flex-wrap:wrap"><button class="action-btn" id="contactBtn">send message</button><button class="action-btn" id="suggestBtn">suggest</button><button class="action-btn" id="clearBtn">clear</button></div></div>
+<div class="footer"><span>© 2026 LOGICNEST // ALL SYSTEMS OPERATIONAL</span><span class="highlight"><i class="fas fa-circle" style="font-size:.3rem"></i> <span id="footerTime">--:--:--</span></span></div>
+</div>
+
+<div class="modal-overlay" id="contactModal"><div class="modal-box"><button class="close-modal" onclick="closeModal('contactModal')"><i class="fas fa-times"></i></button><h2><i class="fas fa-paper-plane"></i> Send Message</h2><form id="contactForm"><input type="text" id="contactName" placeholder="Your name (optional)"><input type="email" id="contactEmail" placeholder="Your email (optional)"><textarea id="contactMessage" placeholder="What's on your mind?"></textarea><button type="submit" class="submit-btn">Send</button></form></div></div>
+<div class="modal-overlay" id="suggestModal"><div class="modal-box"><button class="close-modal" onclick="closeModal('suggestModal')"><i class="fas fa-times"></i></button><h2><i class="fas fa-lightbulb"></i> Submit Suggestion</h2><form id="suggestForm"><input type="text" id="suggestName" placeholder="Your name (optional)"><input type="email" id="suggestEmail" placeholder="Your email (optional)"><textarea id="suggestText" placeholder="Describe your idea or bug..."></textarea><button type="submit" class="submit-btn">Submit</button></form></div></div>
+
+<script>
+const projects=[
+{id:"builder",name:"LogicNest Build",tag:"builder",url:"https://logicnestbuilder.carrd.co/",desc:"Roblox builder — custom builds, architecture & immersive experiences."},
+{id:"scripter",name:"LogicNest Scripter",tag:"scripter",url:"https://logicnesttscripter.vercel.app/",desc:"Roblox scripter — utilities, game mechanics & automation tools."},
+{id:"clothing",name:"LogicNest Clothing",tag:"clothing",url:"https://logicnesttt.vercel.app/",desc:"Roblox clothing designer — premium shirts, pants & outfit collections."}
+];
+
+const terminalBody=document.getElementById("terminalBody"),terminalInput=document.getElementById("terminalInput");
+const modeButtons=document.querySelectorAll(".mode-btn");
+modeButtons.forEach(btn=>btn.addEventListener("click",()=>switchMode(btn.dataset.mode)));
+function switchMode(mode){
+modeButtons.forEach(b=>b.classList.toggle("active",b.dataset.mode===mode));
+document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+document.getElementById(mode+"View").classList.add("active");
+localStorage.setItem("logicnest-mode",mode);
+if(mode==="console")setTimeout(()=>terminalInput.focus(),50);
+}
+switchMode(localStorage.getItem("logicnest-mode")||"console");
+
+function appendOutput(html){
+const div=document.createElement("div");
+div.className="terminal-output";
+div.innerHTML=html;
+terminalBody.insertBefore(div,terminalBody.lastElementChild);
+terminalBody.scrollTop=terminalBody.scrollHeight;
+}
+
+function projectHTML(){
+return projects.map((p,i)=>`<div class="mini-card"><div style="flex:1"><strong>${i+1}. ${p.name}</strong><small>${p.tag} · live</small></div><button onclick="window.open('${p.url}','_blank')">Open</button></div>`).join("");
+}
+document.getElementById("projectList").innerHTML=projectHTML();
+
+function processCommand(cmd){
+const trimmed=cmd.trim();
+if(!trimmed){appendOutput("&nbsp;");return}
+const parts=trimmed.split(/\s+/),command=parts[0].toLowerCase(),args=parts.slice(1);
+
+if(command==="/help"||command==="help"){
+appendOutput(`<span class="highlight">Available commands</span><br><span class="dim">/help /projects /project [name] /open [name] /user [username] /group [name] /game [name] /asset [id] /contact /suggest /theme [name] /status /clear /whoami /echo [text] /mode [console|normal] /exit</span>`);return}
+if(command==="/projects"||command==="projects"){appendOutput(projects.map((p,i)=>`${i+1}. <span class="project-name">${p.name}</span> <span class="tag">[${p.tag}]</span> <span class="success">live</span>`).join("<br>"));return}
+if((command==="/project"||command==="project")&&args.length){const q=args.join(" ").toLowerCase(),p=projects.find(x=>x.name.toLowerCase().includes(q)||x.id.includes(q)||x.tag.includes(q));appendOutput(p?`<span class="highlight">${p.name}</span><br><span class="dim">id:</span> ${p.id}<br><span class="dim">tag:</span> ${p.tag}<br><span class="dim">desc:</span> ${p.desc}<br><span class="link" onclick="window.open('${p.url}','_blank')">${p.url}</span>`:`<span class="error">Project not found.</span>`);return}
+if(command==="/open"&&args.length){const q=args.join(" ").toLowerCase(),p=projects.find(x=>x.name.toLowerCase().includes(q)||x.id.includes(q)||x.tag.includes(q));if(p){window.open(p.url,"_blank");appendOutput(`<span class="success">Opening ${p.name}...</span>`)}else appendOutput(`<span class="error">Project not found.</span>`);return}
+if(command==="/user"||command==="user"){if(!args.length){appendOutput(`<span class="error">Usage: /user [username]</span>`);return}lookupUser(args.join(" "));return}
+if(command==="/group"||command==="group"){if(!args.length){appendOutput(`<span class="error">Usage: /group [name]</span>`);return}lookupGroup(args.join(" "));return}
+if(command==="/game"||command==="game"){if(!args.length){appendOutput(`<span class="error">Usage: /game [name]</span>`);return}lookupGame(args.join(" "));return}
+if(command==="/asset"||command==="asset"){if(!args.length){appendOutput(`<span class="error">Usage: /asset [id]</span>`);return}lookupAsset(args[0]);return}
+if(command==="/contact"||command==="contact"){openModal("contactModal");return}
+if(command==="/suggest"||command==="suggest"){openModal("suggestModal");return}
+if(command==="/clear"||command==="clear"){terminalBody.querySelectorAll(".terminal-output").forEach(x=>x.remove());appendOutput(`<span class="dim">Terminal cleared.</span>`);return}
+if(command==="/whoami"||command==="whoami"){appendOutput(`<span class="dim">user:</span> visitor@logicnest<br><span class="dim">shell:</span> /bin/console<br><span class="dim">home:</span> /roblox-creator`);return}
+if(command==="/echo"&&args.length){appendOutput(`<span class="dim">→</span> ${args.join(" ")}`);return}
+if(command==="/mode"&&args.length){if(["console","normal"].includes(args[0].toLowerCase()))switchMode(args[0].toLowerCase());else appendOutput(`<span class="error">Available modes: console, normal</span>`);return}
+if(command==="/theme"&&args.length){setTheme(args[0].toLowerCase());return}
+if(command==="/status"||command==="status"){appendOutput(`<span class="success">● all systems operational</span><br><span class="dim">projects:</span> ${projects.length}<br><span class="dim">mode:</span> ${localStorage.getItem("logicnest-mode")||"console"}<br><span class="dim">theme:</span> ${document.body.dataset.theme||"default"}`);return}
+if(command==="/exit"||command==="exit"){appendOutput(`<span class="dim">Session reset.</span>`);return}
+appendOutput(`<span class="error">Unknown command: "${trimmed}"</span><br><span class="dim">Type /help for available commands.</span>`);
+}
+
+const commandHistory=[],historyIndex={value:-1};
+terminalInput.addEventListener("keydown",e=>{
+if(e.key==="Enter"){const cmd=terminalInput.value.trim();if(cmd){commandHistory.push(cmd);historyIndex.value=commandHistory.length}appendOutput(`<span class="dim">➜</span> <span class="highlight">${cmd}</span>`);processCommand(cmd);terminalInput.value=""}
+if(e.key==="ArrowUp"){e.preventDefault();if(commandHistory.length){historyIndex.value=Math.max(0,historyIndex.value-1);terminalInput.value=commandHistory[historyIndex.value]}}
+if(e.key==="ArrowDown"){e.preventDefault();if(commandHistory.length){historyIndex.value=Math.min(commandHistory.length,historyIndex.value+1);terminalInput.value=commandHistory[historyIndex.value]||""}}
+if(e.key==="Tab"){e.preventDefault();const commands=["/help","/projects","/project","/open","/user","/group","/game","/asset","/contact","/suggest","/theme","/status","/clear","/whoami","/echo","/mode","/exit"];const q=terminalInput.value.toLowerCase();const found=commands.find(x=>x.startsWith(q)&&x!==q);if(found)terminalInput.value=found}
+});
+
+async function lookupUser(username){
+appendOutput(`<span class="dim">Searching Roblox user:</span> ${username}...`);
+try{
+const r=await fetch("https://users.roblox.com/v1/usernames/users",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({usernames:[username],excludeBannedUsers:false})});
+const d=await r.json();const u=d.data&&d.data[0];
+if(!u){appendOutput(`<span class="error">User not found.</span>`);return}
+const t=await fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${u.id}&size=150x150&format=Png&isCircular=false`);const td=await t.json();const image=td.data&&td.data[0]&&td.data[0].imageUrl;
+appendOutput(`<span class="success">User found</span><br>username: ${u.name}<br>display: ${u.displayName}<br>id: ${u.id}<br><span class="link" onclick="window.open('https://www.roblox.com/users/${u.id}/profile','_blank')">Open Roblox profile</span>`);
+if(image)showNormalResult("userResult",`<div class="profile"><img src="${image}"><div><strong>${u.displayName}</strong><br><span class="dim">@${u.name}</span><br><span class="dim">ID ${u.id}</span></div></div>`);
+}catch(e){appendOutput(`<span class="error">Roblox API request failed.</span>`)}
+}
+
+async function lookupGroup(name){
+const box=document.getElementById("groupResult");box.textContent="Searching...";
+try{
+const r=await fetch(`https://groups.roblox.com/v1/groups/search?keyword=${encodeURIComponent(name)}&limit=10`);const d=await r.json();
+if(!d.data?.length){box.textContent="No groups found.";return}
+box.innerHTML=d.data.map(g=>`<div class="mini-card"><div style="flex:1"><strong>${escapeHTML(g.name)}</strong><small>ID ${g.id} · ${g.memberCount||0} members</small></div><button onclick="window.open('https://www.roblox.com/communities/${g.id}','_blank')">Open</button></div>`).join("");
+}catch(e){box.textContent="Group API request failed."}
+}
+
+async function lookupGame(name){
+const box=document.getElementById("gameResult");box.textContent="Searching...";
+try{
+const r=await fetch(`https://games.roblox.com/v1/games/list?model.keyword=${encodeURIComponent(name)}&model.maxRows=10`);const d=await r.json();
+if(!d.games?.length){box.textContent="No games found.";return}
+box.innerHTML=d.games.map(g=>`<div class="mini-card"><div style="flex:1"><strong>${escapeHTML(g.name)}</strong><small>Place ID ${g.placeId}</small></div><button onclick="window.open('https://www.roblox.com/games/${g.placeId}','_blank')">Open</button></div>`).join("");
+}catch(e){box.textContent="Game API request failed. Try another game name."}
+}
+
+async function lookupAsset(id){
+const box=document.getElementById("assetResult");box.textContent="Searching...";
+if(!/^\d+$/.test(id)){box.textContent="Enter a numeric asset ID.";return}
+try{
+const r=await fetch(`https://economy.roblox.com/v2/assets/${id}/details`);const d=await r.json();
+box.innerHTML=`<strong>${escapeHTML(d.Name||"Unknown asset")}</strong><br><span class="dim">ID:</span> ${id}<br><span class="dim">Type:</span> ${escapeHTML(d.AssetType||"Unknown")}<br><span class="dim">Creator:</span> ${escapeHTML(d.Creator?.Name||"Unknown")}<br><button style="margin-top:.6rem" onclick="window.open('https://www.roblox.com/catalog/${id}','_blank')">Open catalog</button>`;
+}catch(e){box.textContent="Asset lookup failed or the asset is unavailable."}
+}
+
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function showNormalResult(id,html){document.getElementById(id).innerHTML=html}
+
+document.getElementById("userSearch").onclick=()=>{const v=document.getElementById("userInput").value.trim();if(v)lookupUser(v)};
+document.getElementById("groupSearch").onclick=()=>{const v=document.getElementById("groupInput").value.trim();if(v)lookupGroup(v)};
+document.getElementById("gameSearch").onclick=()=>{const v=document.getElementById("gameInput").value.trim();if(v)lookupGame(v)};
+document.getElementById("assetSearch").onclick=()=>{const v=document.getElementById("assetInput").value.trim();if(v)lookupAsset(v)};
+["userInput","groupInput","gameInput","assetInput"].forEach(id=>document.getElementById(id).addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById(id.replace("Input","Search")).click()}));
+
+document.getElementById("utilityRun").onclick=()=>{
+const type=document.getElementById("utilitySelect").value,v=document.getElementById("utilityInput").value,out=document.getElementById("utilityResult");
+try{
+if(type==="json")out.textContent=JSON.stringify(JSON.parse(v),null,2);
+if(type==="base64")out.textContent=btoa(unescape(encodeURIComponent(v)));
+if(type==="decode64")out.textContent=decodeURIComponent(escape(atob(v)));
+if(type==="timestamp")out.textContent=v?new Date(Number(v)*1000).toLocaleString():Math.floor(Date.now()/1000);
+if(type==="color"){const x=v.trim().replace("#","");if(!/^[0-9a-fA-F]{6}$/.test(x))throw Error();out.textContent=`rgb(${parseInt(x.slice(0,2),16)}, ${parseInt(x.slice(2,4),16)}, ${parseInt(x.slice(4,6),16)})`}
+}catch(e){out.textContent="Invalid input."}
+};
+
+const themeList=["default","grayscale","night","muted","sunset","forest","ocean","lavender"];
+function setTheme(t){if(!themeList.includes(t))return;document.body.dataset.theme=t;localStorage.setItem("logicnest-theme",t);document.querySelectorAll(".theme-btn").forEach(b=>b.classList.toggle("active",b.dataset.theme===t))}
+setTheme(localStorage.getItem("logicnest-theme")||"default");
+document.querySelectorAll(".theme-btn").forEach(b=>b.onclick=()=>setTheme(b.dataset.theme));
+
+function openModal(id){document.getElementById(id).classList.add("active")}window.openModal=openModal;
+function closeModal(id){document.getElementById(id).classList.remove("active")}window.closeModal=closeModal;
+document.querySelectorAll(".modal-overlay").forEach(x=>x.addEventListener("click",e=>{if(e.target===x)x.classList.remove("active")}));
+document.getElementById("contactBtn").onclick=()=>openModal("contactModal");
+document.getElementById("suggestBtn").onclick=()=>openModal("suggestModal");
+document.getElementById("clearBtn").onclick=()=>{terminalBody.querySelectorAll(".terminal-output").forEach(x=>x.remove());appendOutput(`<span class="dim">Terminal cleared.</span>`);terminalInput.focus()};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal-overlay.active").forEach(x=>x.classList.remove("active"))});
+
+async function submitForm(type){
+const prefix=type==="contact"?"contact":"suggest",text=document.getElementById(prefix+(type==="contact"?"Message":"Text")).value.trim();
+if(!text){appendOutput(`<span class="error">Please enter a message.</span>`);return}
+const name=document.getElementById(prefix+"Name").value.trim(),email=document.getElementById(prefix+"Email").value.trim();
+const payload=type==="contact"?{name:name||"Anonymous",email:email||"Not provided",message:text,type,timestamp:new Date().toISOString()}:{name:name||"Anonymous",email:email||"Not provided",suggestion:text,type,timestamp:new Date().toISOString()};
+const id=type==="contact"?"Aq3b7yE115cHd7G":"wlWMqUAMKbhMV52";
+try{const r=await fetch(`https://sentinelhook.lol/api.php?id=${id}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});if(!r.ok)throw Error();appendOutput(`<span class="success">${type==="contact"?"Message":"Suggestion"} sent successfully.</span>`);closeModal(prefix+"Modal");document.getElementById(type==="contact"?"contactForm":"suggestForm").reset()}catch(e){appendOutput(`<span class="error">Failed to send. Please try again.</span>`)}
+}
+document.getElementById("contactForm").onsubmit=e=>{e.preventDefault();submitForm("contact")};
+document.getElementById("suggestForm").onsubmit=e=>{e.preventDefault();submitForm("suggestion")};
+
+const canvas=document.getElementById("bg-canvas"),ctx=canvas.getContext("2d");let width,height,particles=[];
+const colors={default:["95,191,168","60,150,130"],grayscale:["160,160,160","100,100,100"],night:["80,140,200","40,90,150"],muted:["150,140,130","110,100,90"],sunset:["210,130,110","180,90,70"],forest:["80,170,120","50,130,80"],ocean:["70,160,200","40,120,160"],lavender:["160,120,200","130,80,170"]};
+function resize(){width=innerWidth;height=innerHeight;canvas.width=width;canvas.height=height}
+function init(){particles=Array.from({length:90},()=>({x:Math.random()*width,y:Math.random()*height,s:Math.random()*2+.7,dx:(Math.random()-.5)*.5,dy:(Math.random()-.5)*.5,o:Math.random()*.4+.1}))}
+function animate(){ctx.clearRect(0,0,width,height);const c=colors[document.body.dataset.theme||"default"];for(const p of particles){p.x+=p.dx;p.y+=p.dy;if(p.x<0||p.x>width)p.dx*=-1;if(p.y<0||p.y>height)p.dy*=-1;const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.s*3);g.addColorStop(0,`rgba(${c[0]},${p.o+.2})`);g.addColorStop(1,`rgba(${c[1]},0)`);ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.s*2.5,0,Math.PI*2);ctx.fill()}for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){const a=particles[i],b=particles[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy);if(d<140){ctx.strokeStyle=`rgba(${c[0]},${(1-d/140)*.15})`;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke()}}requestAnimationFrame(animate)}
+resize();init();animate();addEventListener("resize",()=>{resize();init()});
+
+const overlay=document.getElementById("loading-overlay"),bootLogs=document.getElementById("bootLogs"),fill=document.getElementById("progressFill"),label=document.getElementById("progressLabel"),status=document.getElementById("bootStatus"),skip=document.getElementById("skipBootBtn");
+const boot=["INITIALIZING SYSTEM CORE...","CPU: browser runtime detected","RAM: interface memory check PASSED","NETWORK: connection established","LOADING LOGICNEST CORE...","LOADING TERMINAL DRIVER...","LOADING NORMAL INTERFACE...","LOADING ROBLOX TOOLKIT...","LOADING THEME ENGINE...","SYSTEM READY · all subsystems operational"];
+let bi=0,bt;
+function bootLog(m,c="info"){const d=document.createElement("div");d.className="log-line";d.innerHTML=`<span class="timestamp">[${new Date().toTimeString().split(" ")[0]}]</span> <span class="${c}">${m}</span>`;bootLogs.appendChild(d);bootLogs.scrollTop=bootLogs.scrollHeight}
+function finishBoot(){clearTimeout(bt);fill.style.width="100%";label.textContent="100%";status.innerHTML='<span class="highlight">SYSTEM READY</span>';setTimeout(()=>overlay.classList.add("hidden"),350)}
+function runBoot(){if(bi<boot.length){bootLog(boot[bi],bi>7?"highlight":bi===9?"success":"info");const p=((bi+1)/boot.length)*100;fill.style.width=p+"%";label.textContent=Math.round(p)+"%";bi++;bt=setTimeout(runBoot,180)}else finishBoot()}
+skip.onclick=()=>{boot.slice(bi).forEach(x=>bootLog(x,"dim"));finishBoot()};setTimeout(runBoot,300);
+
+function clock(){const t=new Date().toTimeString().split(" ")[0];document.getElementById("clockDisplay").textContent=t;document.getElementById("footerTime").textContent=t;document.getElementById("bootTime").textContent=t}
+clock();setInterval(clock,1000);
+</script>
+</body>
+</html>
