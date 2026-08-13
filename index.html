@@ -70,7 +70,7 @@
 
   <div class="mode-switch">
     <button class="mode-btn active" data-mode="console">console</button>
-    <button class="mode-btn" data-mode="normal">normal</button>
+    <button class="mode-btn" data-mode="redirects">quick redirects</button>
     <button class="mode-btn" data-mode="tools">tools</button>
   </div>
 
@@ -87,23 +87,23 @@
     </div>
   </div>
 
-  <div class="view" id="normalView">
+  <div class="view" id="redirectsView">
     <div class="normal-grid">
-      <div class="tool-card"><h3>User lookup</h3><p>Find Roblox user by username</p><div class="tool-row"><input id="userInput" placeholder="username"><button id="userSearch">Search</button></div><div class="result" id="userResult">awaiting input</div></div>
-      <div class="tool-card"><h3>Group search</h3><p>Search Roblox groups by name</p><div class="tool-row"><input id="groupInput" placeholder="group name"><button id="groupSearch">Search</button></div><div class="result" id="groupResult">awaiting input</div></div>
-      <div class="tool-card"><h3>Game lookup</h3><p>Find Roblox game by name</p><div class="tool-row"><input id="gameInput" placeholder="game name"><button id="gameSearch">Search</button></div><div class="result" id="gameResult">awaiting input</div></div>
-      <div class="tool-card"><h3>Asset lookup</h3><p>Get details by asset ID</p><div class="tool-row"><input id="assetInput" placeholder="asset id"><button id="assetSearch">Search</button></div><div class="result" id="assetResult">awaiting input</div></div>
-    </div>
-  </div>
-
-  <div class="view" id="toolsView">
-    <div class="normal-grid">
+      <div class="tool-card"><h3>Project quicklinks</h3><p>Open your Roblox projects</p><div class="card-list" id="projectList"></div></div>
       <div class="tool-card"><h3>Utility</h3><p>JSON, base64, timestamp, color converter</p>
         <div class="tool-row"><select id="utilitySelect"><option value="json">JSON format</option><option value="base64">Base64 encode</option><option value="decode64">Base64 decode</option><option value="timestamp">Timestamp</option><option value="color">HEX to RGB</option></select></div>
         <div class="tool-row"><input id="utilityInput" placeholder="input"><button id="utilityRun">Run</button></div>
         <div class="result" id="utilityResult">ready</div>
       </div>
-      <div class="tool-card"><h3>Project quicklinks</h3><p>Open your Roblox projects</p><div class="card-list" id="projectList"></div></div>
+    </div>
+  </div>
+
+  <div class="view" id="toolsView">
+    <div class="normal-grid">
+      <div class="tool-card"><h3>User lookup</h3><p>Find Roblox user by username</p><div class="tool-row"><input id="userInput" placeholder="username"><button id="userSearch">Search</button></div><div class="result" id="userResult">awaiting input</div></div>
+      <div class="tool-card"><h3>Group search</h3><p>Search Roblox groups by name</p><div class="tool-row"><input id="groupInput" placeholder="group name"><button id="groupSearch">Search</button></div><div class="result" id="groupResult">awaiting input</div></div>
+      <div class="tool-card"><h3>Game lookup</h3><p>Find Roblox game by name</p><div class="tool-row"><input id="gameInput" placeholder="game name"><button id="gameSearch">Search</button></div><div class="result" id="gameResult">awaiting input</div></div>
+      <div class="tool-card"><h3>Asset lookup</h3><p>Get details by asset ID</p><div class="tool-row"><input id="assetInput" placeholder="asset id"><button id="assetSearch">Search</button></div><div class="result" id="assetResult">awaiting input</div></div>
     </div>
   </div>
 
@@ -152,7 +152,7 @@ if(!trimmed){appendOutput("&nbsp;");return}
 const parts=trimmed.split(/\s+/),command=parts[0].toLowerCase(),args=parts.slice(1);
 
 if(command==="/help"||command==="help"){
-appendOutput(`<span class="highlight">Available commands</span><br><span class="dim">/help /projects /project [name] /open [name] /user [username] /group [name] /game [name] /asset [id] /contact /suggest /theme [name] /status /clear /whoami /echo [text] /mode [console|normal|tools] /exit</span>`);return}
+appendOutput(`<span class="highlight">Available commands</span><br><span class="dim">/help /projects /project [name] /open [name] /user [username] /group [name] /game [name] /asset [id] /contact /suggest /theme [name] /status /clear /whoami /echo [text] /mode [console|redirects|tools] /exit</span>`);return}
 if(command==="/projects"||command==="projects"){appendOutput(projects.map((p,i)=>`${i+1}. <span class="project-name">${p.name}</span> <span class="tag">[${p.tag}]</span> <span class="success">live</span>`).join("<br>"));return}
 if((command==="/project"||command==="project")&&args.length){const q=args.join(" ").toLowerCase(),p=projects.find(x=>x.name.toLowerCase().includes(q)||x.id.includes(q)||x.tag.includes(q));appendOutput(p?`<span class="highlight">${p.name}</span><br><span class="dim">id:</span> ${p.id}<br><span class="dim">tag:</span> ${p.tag}<br><span class="dim">desc:</span> ${p.desc}<br><span class="link" onclick="window.open('${p.url}','_blank')">${p.url}</span>`:`<span class="error">Project not found.</span>`);return}
 if(command==="/open"&&args.length){const q=args.join(" ").toLowerCase(),p=projects.find(x=>x.name.toLowerCase().includes(q)||x.id.includes(q)||x.tag.includes(q));if(p){window.open(p.url,"_blank");appendOutput(`<span class="success">Opening ${p.name}...</span>`)}else appendOutput(`<span class="error">Project not found.</span>`);return}
@@ -165,7 +165,7 @@ if(command==="/suggest"||command==="suggest"){openModal("suggestModal");return}
 if(command==="/clear"||command==="clear"){terminalBody.querySelectorAll(".terminal-output").forEach(x=>x.remove());appendOutput(`<span class="dim">Terminal cleared.</span>`);return}
 if(command==="/whoami"||command==="whoami"){appendOutput(`<span class="dim">user:</span> visitor@logicnest<br><span class="dim">shell:</span> /bin/console<br><span class="dim">home:</span> /roblox-creator`);return}
 if(command==="/echo"&&args.length){appendOutput(`<span class="dim">→</span> ${args.join(" ")}`);return}
-if(command==="/mode"&&args.length){if(["console","normal","tools"].includes(args[0].toLowerCase()))switchMode(args[0].toLowerCase());else appendOutput(`<span class="error">Available modes: console, normal, tools</span>`);return}
+if(command==="/mode"&&args.length){if(["console","redirects","tools"].includes(args[0].toLowerCase()))switchMode(args[0].toLowerCase());else appendOutput(`<span class="error">Available modes: console, redirects, tools</span>`);return}
 if(command==="/theme"&&args.length){setTheme(args[0].toLowerCase());return}
 if(command==="/status"||command==="status"){appendOutput(`<span class="success">● all systems operational</span><br><span class="dim">projects:</span> ${projects.length}<br><span class="dim">mode:</span> ${localStorage.getItem("logicnest-mode")||"console"}<br><span class="dim">theme:</span> ${document.body.dataset.theme||"default"}`);return}
 if(command==="/exit"||command==="exit"){appendOutput(`<span class="dim">Session reset.</span>`);return}
@@ -271,7 +271,7 @@ function animate(){ctx.clearRect(0,0,width,height);const c=colors[document.body.
 resize();init();animate();addEventListener("resize",()=>{resize();init()});
 
 const overlay=document.getElementById("loading-overlay"),bootLogs=document.getElementById("bootLogs"),fill=document.getElementById("progressFill"),label=document.getElementById("progressLabel"),status=document.getElementById("bootStatus"),skip=document.getElementById("skipBootBtn");
-const boot=["INITIALIZING SYSTEM CORE...","CPU: browser runtime detected","RAM: interface memory check PASSED","NETWORK: connection established","LOADING LOGICNEST CORE...","LOADING TERMINAL DRIVER...","LOADING NORMAL INTERFACE...","LOADING TOOLKIT...","LOADING THEME ENGINE...","SYSTEM READY · all subsystems operational"];
+const boot=["INITIALIZING SYSTEM CORE...","CPU: browser runtime detected","RAM: interface memory check PASSED","NETWORK: connection established","LOADING LOGICNEST CORE...","LOADING TERMINAL DRIVER...","LOADING REDIRECTS INTERFACE...","LOADING TOOLKIT...","LOADING THEME ENGINE...","SYSTEM READY · all subsystems operational"];
 let bi=0,bt;
 function bootLog(m,c="info"){const d=document.createElement("div");d.className="log-line";d.innerHTML=`<span class="timestamp">[${new Date().toTimeString().split(" ")[0]}]</span> <span class="${c}">${m}</span>`;bootLogs.appendChild(d);bootLogs.scrollTop=bootLogs.scrollHeight}
 function finishBoot(){clearTimeout(bt);fill.style.width="100%";label.textContent="100%";status.innerHTML='<span class="highlight">SYSTEM READY</span>';setTimeout(()=>overlay.classList.add("hidden"),350)}
